@@ -60,6 +60,8 @@ const initialQueryValues: QueryValues = {
   termo: "",
 };
 
+const securityPort = import.meta.env.VITE_BACKEND_HTTPS_PORT ?? "7113";
+
 const buildRequestUrl = (
   resourceKey: string,
   page: number,
@@ -177,7 +179,7 @@ export const App: FunctionalComponent = () => {
       <div class="stack">
         <Panel
           title="Status da integracao"
-          subtitle="Resumo do servico e do catalogo devolvido pelo backend atual."
+          subtitle={`Resumo do servico e do catalogo devolvido pelo backend atual. Porta segura integrada: ${securityPort}.`}
         >
           <div class="stats-grid">
             <StatCard label="Servico" value={health?.service ?? "Carregando"} tone="primary" />
