@@ -56,7 +56,7 @@ public sealed class ResourcesController : ControllerBase
                 ["timestamp_utc"] = DateTime.UtcNow.ToString("O"),
             };
 
-            return Ok(BuildEnvelope(resource, sourceUrl, normalizedPage, normalizedPageSize, [item]));
+            return Ok(BuildEnvelope(resource, sourceUrl, normalizedPage, normalizedPageSize, new[] { item }));
         }
 
         if (resource.Equals("consulta_exemplo", StringComparison.OrdinalIgnoreCase))
@@ -101,28 +101,32 @@ public sealed class ResourcesController : ControllerBase
         });
     }
 
-    private static IReadOnlyList<ResourceDescriptor> GetResources() =>
-    [
-        new ResourceDescriptor(
-            "diagnostico_backend",
-            "/api/resources/diagnostico_backend",
-            "Integracao .NET",
-            "Valida a comunicacao entre o frontend Next.js e esta API .NET.",
-            Array.Empty<string>(),
-            Array.Empty<string>(),
-            Array.Empty<QueryParameterDescriptor>()),
-        new ResourceDescriptor(
-            "consulta_exemplo",
-            "/api/resources/consulta_exemplo",
-            "Integracao .NET",
-            "Retorna dados de exemplo paginados para validar a interface de consulta.",
-            Array.Empty<string>(),
-            ["codigo_municipio", "termo"],
-            [
-                new QueryParameterDescriptor("codigo_municipio", false, "Codigo do municipio para filtrar a amostra.", "string"),
-                new QueryParameterDescriptor("termo", false, "Texto livre para demonstrar filtros dinamicos.", "string"),
-            ])
-    ];
+    private static IReadOnlyList<ResourceDescriptor> GetResources()
+    {
+        return new[]
+        {
+            new ResourceDescriptor(
+                "diagnostico_backend",
+                "/api/resources/diagnostico_backend",
+                "Integracao .NET",
+                "Valida a comunicacao entre o frontend Next.js e esta API .NET.",
+                Array.Empty<string>(),
+                Array.Empty<string>(),
+                Array.Empty<QueryParameterDescriptor>()),
+            new ResourceDescriptor(
+                "consulta_exemplo",
+                "/api/resources/consulta_exemplo",
+                "Integracao .NET",
+                "Retorna dados de exemplo paginados para validar a interface de consulta.",
+                Array.Empty<string>(),
+                new[] { "codigo_municipio", "termo" },
+                new[]
+                {
+                    new QueryParameterDescriptor("codigo_municipio", false, "Codigo do municipio para filtrar a amostra.", "string"),
+                    new QueryParameterDescriptor("termo", false, "Texto livre para demonstrar filtros dinamicos.", "string"),
+                })
+        };
+    }
 
     private static PaginatedEnvelope BuildEnvelope(
         string resource,
