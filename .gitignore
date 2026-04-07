@@ -1,0 +1,7 @@
+/Frontend/node_modules/
+/Frontend/.vite/
+/Frontend/dist/
+/.codex-tmp/
+/wwwroot/
+**/bin/
+**/obj/
