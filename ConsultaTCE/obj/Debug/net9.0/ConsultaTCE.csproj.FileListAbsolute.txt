@@ -1,35 +1,41 @@
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\appsettings.Development.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\appsettings.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.staticwebassets.endpoints.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.exe
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.deps.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.runtimeconfig.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.pdb
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Microsoft.OpenApi.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.csproj.AssemblyReference.cache
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rpswa.dswa.cache.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.AssemblyInfoInputs.cache
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.AssemblyInfo.cs
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.csproj.CoreCompileInputs.cache
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rjimswa.dswa.cache.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\scopedcss\bundle\ConsultaTCE.styles.css
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.build.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.build.json.cache
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.development.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\Consulta.6D3F6DC0.Up2Date
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\refint\ConsultaTCE.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.pdb
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.genruntimeconfig.cache
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ref\ConsultaTCE.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\Profissional\RiderProjects\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\appsettings.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.staticwebassets.runtime.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.staticwebassets.endpoints.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.exe
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.deps.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.runtimeconfig.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\ConsultaTCE.pdb
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Microsoft.OpenApi.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.csproj.AssemblyReference.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.AssemblyInfoInputs.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.AssemblyInfo.cs
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.csproj.CoreCompileInputs.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.sourcelink.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rjimswa.dswa.cache.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\scopedcss\bundle\ConsultaTCE.styles.css
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\d4jrn9gcx1-{0}-a1fjg2ngrl-a1fjg2ngrl.gz
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\1ih812jid4-{0}-k24ukgyoe0-k24ukgyoe0.gz
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.build.json.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\swae.build.ex.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\Consulta.6D3F6DC0.Up2Date
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\refint\ConsultaTCE.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.pdb
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.genruntimeconfig.cache
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ref\ConsultaTCE.dll
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\vl2jhhivbx-{0}-i5j1ka5p5h-i5j1ka5p5h.gz
+C:\Users\SS Infórmatica\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\q4fofwdtsd-{0}-y3wus0w6vx-y3wus0w6vx.gz

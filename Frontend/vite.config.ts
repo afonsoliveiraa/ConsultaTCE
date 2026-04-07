@@ -15,6 +15,8 @@ export default defineConfig({
   server: {
     port: frontendPort,
     strictPort: true,
+    // O frontend de desenvolvimento sobe apenas em HTTPS para alinhar com o backend.
+    https: true,
     proxy: {
       "/api": {
         // Em desenvolvimento, toda chamada para /api vai para a porta HTTPS do backend.

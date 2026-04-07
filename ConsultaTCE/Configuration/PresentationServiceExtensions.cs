@@ -9,7 +9,14 @@ public static class PresentationServiceExtensions
         // Mantem o bootstrap da camada web concentrado fora do Program.cs.
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new()
+            {
+                Title = "ConsultaTCE API",
+                Version = "v1"
+            });
+        });
         services.AddFrontendCors(configuration);
 
         return services;
@@ -17,12 +24,12 @@ public static class PresentationServiceExtensions
 
     public static WebApplication UsePresentationPipeline(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
         {
-            // Swagger fica disponivel apenas no fluxo de desenvolvimento.
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+            options.RoutePrefix = "swagger";
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "ConsultaTCE API v1");
+        });
 
         // A API aceita chamadas apenas das origens configuradas para o frontend.
         app.UseCors(CorsConfigurationExtensions.FrontendDevPolicy);
