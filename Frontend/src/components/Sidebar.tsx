@@ -23,7 +23,9 @@ export const Sidebar: FunctionalComponent<{ open: boolean; onToggle: () => void 
       <div class="app-sidebar__top">
         <div class="app-sidebar__toggle">
           <button class="sidebar-toggle-button" type="button" onClick={onToggle} aria-label="Alternar menu">
-            <Icon name="menu" className="sidebar-svg-icon" />
+            <span class={`sidebar-toggle-button__icon${open ? " is-open" : ""}`}>
+              <Icon name="sidebar_toggle" className="sidebar-svg-icon" />
+            </span>
           </button>
         </div>
 

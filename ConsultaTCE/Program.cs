@@ -24,7 +24,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendDev", policy =>
     {
         policy
-            .WithOrigins("https://localhost:5173", "https://localhost:7113")
+            .WithOrigins(
+                "https://localhost:5173",
+                "https://localhost:7113")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -48,10 +50,6 @@ app.UseHttpsRedirection();
 // Aplica a politica de CORS antes do mapeamento de rotas.
 app.UseCors("FrontendDev");
 
-// Entrega a aplicacao frontend compilada em wwwroot.
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
 // --------------------------------------------------
 // Mapeamento de rotas
 // --------------------------------------------------
@@ -59,7 +57,8 @@ app.UseStaticFiles();
 // Publica os controllers da API.
 app.MapControllers();
 
-// Mantem o Swagger acessivel em /swagger.
+// Quando a origem do backend for acessada diretamente, abre o Swagger.
+app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapGet("/swagger", () => Results.Redirect("/swagger/index.html"));
 
 app.Run();

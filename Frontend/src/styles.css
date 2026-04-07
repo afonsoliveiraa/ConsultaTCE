@@ -26,7 +26,7 @@ body,
 body {
   margin: 0;
   color: var(--text);
-  overflow: hidden;
+  overflow: auto;
   background: var(--page);
 }
 
@@ -42,14 +42,14 @@ input {
 }
 
 .app-frame {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow: visible;
 }
 
 .decision-layout {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  height: calc(100vh - 56px);
+  min-height: calc(100vh - 56px);
   transition: grid-template-columns 0.25s ease;
 }
 
@@ -88,6 +88,15 @@ input {
   color: #666;
   cursor: pointer;
   background: transparent;
+}
+
+.sidebar-toggle-button__icon {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle-button__icon.is-open {
+  transform: scaleX(-1);
 }
 
 .app-sidebar__search {
@@ -176,15 +185,15 @@ input {
   display: grid;
   align-content: start;
   gap: 18px;
-  height: 100%;
+  min-height: 0;
   min-width: 0;
   padding: 24px 20px 16px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .decision-content {
   display: grid;
-  height: 100%;
+  min-height: 100%;
 }
 
 .app-header {
@@ -212,8 +221,8 @@ input {
 }
 
 .app-header__brand img {
-  width: 42px;
-  height: 42px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   transform: none;
 }
@@ -277,10 +286,9 @@ input {
 .user-view-page {
   display: grid;
   align-content: start;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto auto;
   gap: 20px;
-  height: 100%;
-  min-height: 0;
+  min-height: 100%;
 }
 
 .user-view-topbar {
@@ -789,12 +797,23 @@ input {
   .decision-layout,
   .decision-layout--collapsed {
     grid-template-columns: 1fr;
+    min-height: auto;
   }
 
   .app-header,
   .user-view-topbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .app-sidebar {
+    height: auto;
+    overflow: visible;
+  }
+
+  .decision-main {
+    overflow: visible;
+    padding: 16px;
   }
 
   .grid-demo__toolbar,

@@ -13,13 +13,19 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: "localhost",
     port: frontendPort,
     strictPort: true,
-    // O frontend de desenvolvimento sobe apenas em HTTPS para alinhar com o backend.
-    https: true,
+    open: false,
     proxy: {
       "/api": {
         // Em desenvolvimento, toda chamada para /api vai para a porta HTTPS do backend.
+        target: backendHttpsUrl,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/swagger": {
+        // Permite validar a API e a documentacao sem trocar de origem durante o desenvolvimento.
         target: backendHttpsUrl,
         changeOrigin: true,
         secure: false,
