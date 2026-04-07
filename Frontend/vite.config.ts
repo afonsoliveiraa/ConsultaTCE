@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import preact from "@preact/preset-vite";
 import { resolve } from "node:path";
 
-const frontendPort = Number(process.env.FRONTEND_PORT ?? "3000");
+const frontendPort = Number(process.env.FRONTEND_PORT ?? "5173");
 const backendHttpsUrl = process.env.BACKEND_HTTPS_URL ?? "https://localhost:7113";
 
 export default defineConfig({
