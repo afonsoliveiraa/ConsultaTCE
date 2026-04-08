@@ -1,42 +1,73 @@
 import { type FunctionalComponent } from "preact";
+import { useRef } from "preact/hooks";
 import { useState } from "preact/hooks";
 import { uploadContratos } from "../services/contratosApi";
 
 // Pagina dedicada apenas ao fluxo de importacao de arquivos.
 export const UploadHistoryPage: FunctionalComponent = () => {
+  const inputArquivoRef = useRef<HTMLInputElement>(null);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [mensagemUpload, setMensagemUpload] = useState("");
   const [erroUpload, setErroUpload] = useState("");
   const [carregandoUpload, setCarregandoUpload] = useState(false);
+  const [arrastandoArquivo, setArrastandoArquivo] = useState(false);
 
-  // Processa o envio do arquivo para o backend e limpa o input ao concluir.
-  const handleUpload = async (event: Event) => {
-    event.preventDefault();
+  // Atualiza o arquivo visivel na tela antes de iniciar o envio automatico.
+  const atualizarArquivoSelecionado = (proximoArquivo: File | null) => {
+    setArquivo(proximoArquivo);
+    setErroUpload("");
+  };
+
+  // Envia o arquivo assim que ele entrar na tela por clique ou arraste.
+  const enviarArquivoSelecionado = async (proximoArquivo: File | null) => {
     setMensagemUpload("");
     setErroUpload("");
+    atualizarArquivoSelecionado(proximoArquivo);
 
-    if (!arquivo) {
-      setErroUpload("Selecione um arquivo antes de enviar.");
+    if (!proximoArquivo) {
       return;
     }
 
     setCarregandoUpload(true);
 
     try {
-      const mensagem = await uploadContratos(arquivo);
+      const mensagem = await uploadContratos(proximoArquivo);
       setMensagemUpload(mensagem);
-      setArquivo(null);
-
-      // Limpa o input nativo para permitir reenviar o mesmo arquivo se necessario.
-      const input = document.getElementById("arquivo-contratos") as HTMLInputElement | null;
-      if (input) {
-        input.value = "";
-      }
     } catch (error) {
       setErroUpload(error instanceof Error ? error.message : "Falha ao enviar o arquivo.");
     } finally {
       setCarregandoUpload(false);
     }
+  };
+
+  // Libera o drop do navegador e destaca a area de upload enquanto o arquivo estiver sobre ela.
+  const handleDragOver = (event: DragEvent) => {
+    event.preventDefault();
+    setArrastandoArquivo(true);
+  };
+
+  // Remove o destaque quando o arquivo sai da area de upload sem soltar.
+  const handleDragLeave = (event: DragEvent) => {
+    const elementoAtual = event.currentTarget as HTMLElement | null;
+    const proximoAlvo = event.relatedTarget as Node | null;
+
+    if (elementoAtual?.contains(proximoAlvo)) {
+      return;
+    }
+
+    setArrastandoArquivo(false);
+  };
+
+  // Recebe o arquivo arrastado para dentro da tela e reaproveita o fluxo normal de upload.
+  const handleDrop = (event: DragEvent) => {
+    event.preventDefault();
+    setArrastandoArquivo(false);
+    void enviarArquivoSelecionado(event.dataTransfer?.files?.[0] ?? null);
+  };
+
+  // Abre o seletor nativo de arquivos sem depender do clique na area de arraste.
+  const handleAbrirSeletorArquivo = () => {
+    inputArquivoRef.current?.click();
   };
 
   return (
@@ -49,20 +80,43 @@ export const UploadHistoryPage: FunctionalComponent = () => {
             </div>
           </div>
 
-          <form class="contracts-form" onSubmit={handleUpload}>
-            <label class="contracts-field" for="arquivo-contratos">
+          <div class="contracts-form">
+            <button
+              class="contracts-button contracts-button--picker"
+              type="button"
+              disabled={carregandoUpload}
+              onClick={handleAbrirSeletorArquivo}
+            >
+              {carregandoUpload ? "Enviando..." : "Upload do arquivo"}
+            </button>
+
+            <label class="contracts-field">
               <span>Arquivo de contratos</span>
-              <input
-                id="arquivo-contratos"
-                type="file"
-                onChange={(event) => setArquivo(event.currentTarget.files?.[0] ?? null)}
-              />
+              <div
+                class={`contracts-dropzone${arrastandoArquivo ? " is-dragging" : ""}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <div class="contracts-dropzone__content">
+                  <strong>Arraste o arquivo para ca</strong>
+                  <span>
+                    {arquivo
+                      ? `Arquivo selecionado: ${arquivo.name}`
+                      : "Solte o arquivo nesta area para importar automaticamente."}
+                  </span>
+                </div>
+              </div>
             </label>
 
-            <button class="contracts-button" type="submit" disabled={carregandoUpload}>
-              {carregandoUpload ? "Enviando arquivo..." : "Enviar arquivo"}
-            </button>
-          </form>
+            <input
+              ref={inputArquivoRef}
+              id="arquivo-contratos"
+              class="contracts-file-input-hidden"
+              type="file"
+              onChange={(event) => void enviarArquivoSelecionado(event.currentTarget.files?.[0] ?? null)}
+            />
+          </div>
 
           {arquivo ? (
             <p class="contracts-feedback contracts-feedback--neutral">
