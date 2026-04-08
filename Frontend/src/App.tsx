@@ -1,26 +1,18 @@
 import { type FunctionalComponent } from "preact";
-import { MainLayout, UsersFiltersCard, UsersGridDemo } from "./components";
+import { MainLayout } from "./components";
+import { ContractQueryPage, NotFoundPage, UploadHistoryPage } from "./pages";
+import { resolveAppRoute } from "./routes/appRoutes";
 
 export const App: FunctionalComponent = () => {
+  // Usa o modulo de rotas para manter a resolucao das paginas em um unico lugar.
+  const currentPage = resolveAppRoute(window.location.pathname);
+
   return (
-    <MainLayout pageTitle="Inicio">
-      <section class="user-view-page">
-        <div class="user-view-topbar">
-          <div class="breadcrumbs-demo">
-            <a href="/">Usuarios</a>
-            <span>&rsaquo;</span>
-            <strong>Visualizar Usuario</strong>
-          </div>
-
-          <div class="stepper-inline">
-            <div class="step-pill is-done"><span>✓</span><strong>Dados Basicos</strong></div>
-            <div class="step-pill is-done"><span>✓</span><strong>Unidades Funcionais</strong></div>
-            <div class="step-pill is-done"><span>✓</span><strong>Assuntos</strong></div>
-          </div>
-        </div>
-
-        <UsersFiltersCard />
-        <UsersGridDemo />
+    <MainLayout pageTitle={currentPage.title}>
+      <section class={`contracts-page${currentPage.key === "consulta" ? " contracts-page--consulta" : ""}`}>
+        {currentPage.key === "upload" ? <UploadHistoryPage /> : null}
+        {currentPage.key === "consulta" ? <ContractQueryPage /> : null}
+        {currentPage.key === "not-found" ? <NotFoundPage /> : null}
       </section>
     </MainLayout>
   );

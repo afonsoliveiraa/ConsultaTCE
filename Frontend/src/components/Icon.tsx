@@ -2,7 +2,7 @@ import { type FunctionalComponent } from "preact";
 
 export type IconName =
   | "menu"
-  | "sidebar_toggle"
+  | "upload"
   | "home"
   | "file"
   | "bank"
@@ -25,12 +25,8 @@ export const Icon: FunctionalComponent<{ name: IconName; className?: string }> =
   switch (name) {
     case "menu":
       return <svg {...filled}><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" /></svg>;
-    case "sidebar_toggle":
-      return (
-        <svg {...filled}>
-          <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 2v10h4V7zm7.5 5 3.5 3v-2h3v-2h-3V9z" />
-        </svg>
-      );
+    case "upload":
+      return <svg {...filled}><path d="M5 20h14v-2H5zm7-18-5 5 1.41 1.41L11 5.83V16h2V5.83l2.59 2.58L17 7z" /></svg>;
     case "home":
       return <svg {...filled}><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>;
     case "file":
