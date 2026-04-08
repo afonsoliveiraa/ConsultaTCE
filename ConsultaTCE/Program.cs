@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Infrastructure.FileProcessors;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models; // Necessário para OpenApiSecurityScheme
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,39 +12,51 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Registro dos Serviços de Infraestrutura e Banco
 // --------------------------------------------------
 
-// Busca a string de conexão e garante que não é nula
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// Configura o DbContext para PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Injeção de Dependência dos seus Processadores e Leitores
-// Camada de Infra (Implementações)
 builder.Services.AddScoped<ILeitorCO, LeitorCO>();
 builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
-
-// Camada de Application (Orquestrador)
 builder.Services.AddScoped<ContratoService>();
 
 // --------------------------------------------------
-// 2. Configuração da API e Swagger
+// 2. Configuração da API e Swagger (Com campo de Chave)
 // --------------------------------------------------
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new()
+    options.SwaggerDoc("v1", new() { Title = "ConsultaTCE API", Version = "v1" });
+
+    // Configura o botão "Authorize" no Swagger para enviar o X-App-Secret
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-        Title = "ConsultaTCE API",
-        Version = "v1"
+        Description = "Insira a chave secreta definida no appsettings ou GitLab (X-App-Secret)",
+        Name = "X-App-Secret",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "ApiKeyScheme"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" },
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
     });
 });
 
 // --------------------------------------------------
-// 3. Configuração do CORS (Dinâmico)
+// 3. Configuração do CORS
 // --------------------------------------------------
 
 var allowedOrigins = builder.Configuration
@@ -54,10 +67,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendDev", policy =>
     {
-        policy
-            .WithOrigins(allowedOrigins) 
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -67,28 +79,56 @@ var app = builder.Build();
 // 4. Pipeline de Execução (Middlewares)
 // --------------------------------------------------
 
-// Documentação sempre disponível no ambiente de dev
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment())
 {
-    options.RoutePrefix = "swagger";
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "ConsultaTCE API v1");
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "ConsultaTCE API v1");
+    });
+}
 
 app.UseHttpsRedirection();
 
-// IMPORTANTE: UseCors deve vir antes de MapControllers
+// Importante: O CORS deve vir antes de qualquer bloqueio
 app.UseCors("FrontendDev");
+
+// --- MIDDLEWARE DE VALIDAÇÃO DA CHAVE ---
+app.Use(async (context, next) =>
+{
+    // Permite livre acesso ao Swagger e à raiz
+    var path = context.Request.Path.Value?.ToLower();
+    if (path == "/" || path!.StartsWith("/swagger"))
+    {
+        await next();
+        return;
+    }
+
+    // Busca a chave configurada
+    var secretKey = builder.Configuration["Security:FrontendKey"];
+
+    // Se o header não existir ou for diferente da chave configurada, bloqueia
+    if (!context.Request.Headers.TryGetValue("X-App-Secret", out var extractedKey) || 
+        extractedKey != secretKey)
+    {
+        context.Response.StatusCode = 403;
+        context.Response.ContentType = "text/plain; charset=utf-8";
+        await context.Response.WriteAsync("Acesso negado: Somente o front-end autorizado pode realizar requisições.");
+        return;
+    }
+
+    await next();
+});
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 // --------------------------------------------------
-// 5. Redirecionamentos de Inicialização
+// 5. Redirecionamentos
 // --------------------------------------------------
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
-app.MapGet("/swagger", () => Results.Redirect("/swagger/index.html"));
 
 app.Run();
