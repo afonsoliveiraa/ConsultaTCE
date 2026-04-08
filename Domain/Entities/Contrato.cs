@@ -8,23 +8,41 @@ public class Contrato
     public int Id { get; set; }
     
     [Column("tipo_documento")]
-    public string TipoDocumento { get; set; } // Campo 1
+    public string TipoDocumento { get; set; }
 
     [Column("cod_municipio")]
-    public string CodMunicipio { get; set; } // Campo 2
+    public string CodMunicipio { get; set; }
 
     [Column("cpf_gestor")]
-    public string CpfGestor { get; set; } // Campo 3 (Gestor que celebrou)
+    public string CpfGestor { get; set; }
 
     [Column("numero_contrato")]
-    public string NumeroContrato { get; set; } // Campo 4
+    public string NumeroContrato { get; set; }
+    
+    [Column("data_assinatura")]
+    public DateTime? DataAssinatura { get; set; } // Tipo DateTime
+
+    [Column("modalidade")]
+    public string Modalidade { get; set; }
+    
+    [Column("vigencia_inicial")]
+    public DateTime? VigenciaInicial { get; set; }
+
+    [Column("vigencia_final")]
+    public DateTime? VigenciaFinal { get; set; }
+    
+    [Column("referencia")]
+    public DateTime? Referencia { get; set; }
+    
+    [Column("valor")]
+    public decimal Valor { get; set; }
 
     [Column("objeto_contrato")]
-    public string Objeto { get; set; } // Campo 13
+    public string Objeto { get; set; }
 
     [Column("cpf_fiscal")]
-    public string CpfFiscal { get; set; } // Campo 22
+    public string CpfFiscal { get; set; }
 
     [Column("nome_fiscal")]
-    public string NomeFiscal { get; set; } // Campo 23
+    public string NomeFiscal { get; set; }
 }

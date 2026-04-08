@@ -75,9 +75,6 @@ C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\refint\Co
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.pdb
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ConsultaTCE.genruntimeconfig.cache
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\ref\ConsultaTCE.dll
-C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\hc8ze8zp2h-7a41g56358.gz
-C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\oq0b18h2kp-988i2zgas0.gz
-C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\5o2mvkcwaz-amljfqub7n.gz
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
@@ -172,3 +169,10 @@ C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\zh-Hans\M
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Application.dll
 C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\bin\Debug\net9.0\Application.pdb
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\ok9bbrgij9-rzex8pbphq.gz
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\6yv80l3mjf-d9zh6nycl5.gz
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\c748310b6a-d9zh6nycl5.gz
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\4w1rpj4wqb-u6mcvw618z.gz
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\abujo5dtbu-i23qyi4xvm.gz
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\mht8gizvs8-yt54b1qppq.gz
+C:\Users\Profissional\Desktop\ConsultaTCE\ConsultaTCE\obj\Debug\net9.0\compressed\5o2mvkcwaz-u3cnptzwhs.gz

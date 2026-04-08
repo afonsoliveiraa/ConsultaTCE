@@ -23,16 +23,17 @@ public class ContratoService
         // 2. Converte DTOs para Entidades de Domínio
         var entidades = dtos.Select(dto => new Contrato 
         {
-            // CAMPOS OBRIGATÓRIOS QUE ESTAVAM FALTANDO:
-            TipoDocumento = "511", // Valor fixo do manual SIM
+            TipoDocumento = dto.TipoDocumento ?? "511", // Usa o do DTO ou o padrão 511
             CodMunicipio = dto.CodMunicipio,
-            Objeto = dto.Objeto,
-        
-            // CAMPOS QUE VOCÊ JÁ TINHA:
             CpfGestor = dto.CpfGestor,
             NumeroContrato = dto.NumeroContrato,
-
-            // CAMPOS DO FISCAL:
+            DataAssinatura = dto.DataAssinatura,
+            Modalidade = dto.Modalidade,
+            VigenciaInicial = dto.VigenciaInicial,
+            VigenciaFinal = dto.VigenciaFinal,
+            Referencia = dto.Referencia,
+            Valor = dto.Valor,
+            Objeto = dto.Objeto,
             CpfFiscal = dto.CpfFiscal,
             NomeFiscal = dto.NomeFiscal
         }).ToList();
@@ -51,10 +52,17 @@ public class ContratoService
 
         // 2. Transforma as entidades de volta para o seu DTO existente
         return notasEntidades.Select(n => new ContratoDTO(
-            NumeroContrato: n.NumeroContrato,
+            TipoDocumento:  n.TipoDocumento,
             CodMunicipio:   n.CodMunicipio,
             CpfGestor:      n.CpfGestor,
+            NumeroContrato: n.NumeroContrato,
+            DataAssinatura: n.DataAssinatura,
+            Modalidade:     n.Modalidade,
+            VigenciaInicial: n.VigenciaInicial,
+            VigenciaFinal:   n.VigenciaFinal,
+            Referencia: n.Referencia,
             Objeto:         n.Objeto,
+            Valor:          n.Valor,
             CpfFiscal:      n.CpfFiscal,
             NomeFiscal:     n.NomeFiscal
         )).ToList();
