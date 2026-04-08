@@ -13,8 +13,13 @@
 .contracts-upload-shell {
   display: grid;
   gap: 24px;
-  width: min(520px, 100%);
-  justify-self: center;
+  width: 100%;
+  justify-self: stretch;
+  justify-items: center;
+}
+
+.contracts-upload-shell .contracts-grid {
+  width: 100%;
 }
 
 .contracts-page__title {
@@ -132,6 +137,7 @@
 .contracts-card--upload-compact {
   width: 100%;
   padding: 20px;
+  justify-self: stretch;
 }
 
 .contracts-card__header {
