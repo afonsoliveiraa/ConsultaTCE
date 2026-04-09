@@ -5,7 +5,8 @@ export async function uploadContratos(arquivo: File): Promise<string> {
   const formData = new FormData();
   formData.append("arquivo", arquivo);
 
-  // O Axios já lida com o erro e com a chave secreta automaticamente.
+  // O backend agora detecta o periodo pela Referencia do arquivo.
+  // Se quiser voltar ao fluxo antigo, e so recolocar o campo exerc aqui.
   const response = await api.post("/Contratos/upload", formData);
   return response.data?.mensagem ?? "Sucesso";
 }

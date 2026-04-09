@@ -4,6 +4,5 @@ namespace Domain.Interfaces;
 
 public interface ILeitorCO
 {
-    Task<IEnumerable<ContratoDTO>> LerArquivoAsync(Stream arquivoStream, string exerc);
-
+    Task<IEnumerable<ContratoDTO>> LerArquivoAsync(Stream arquivoStream);
 }

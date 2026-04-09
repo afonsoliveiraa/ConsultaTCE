@@ -1,9 +1,9 @@
 import { type FunctionalComponent } from "preact";
-import { useRef } from "preact/hooks";
-import { useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
 import { uploadContratos } from "../services/contratosApi";
 
-// Pagina dedicada apenas ao fluxo de importacao de arquivos.
+// A tela volta a ser um upload simples: o backend detecta o periodo pela Referencia.
+// Se precisar restaurar o seletor de exercicio, este e o arquivo certo para recolocar o campo.
 export const UploadHistoryPage: FunctionalComponent = () => {
   const inputArquivoRef = useRef<HTMLInputElement>(null);
   const [arquivo, setArquivo] = useState<File | null>(null);
@@ -12,13 +12,11 @@ export const UploadHistoryPage: FunctionalComponent = () => {
   const [carregandoUpload, setCarregandoUpload] = useState(false);
   const [arrastandoArquivo, setArrastandoArquivo] = useState(false);
 
-  // Atualiza o arquivo visivel na tela antes de iniciar o envio automatico.
   const atualizarArquivoSelecionado = (proximoArquivo: File | null) => {
     setArquivo(proximoArquivo);
     setErroUpload("");
   };
 
-  // Envia o arquivo assim que ele entrar na tela por clique ou arraste.
   const enviarArquivoSelecionado = async (proximoArquivo: File | null) => {
     setMensagemUpload("");
     setErroUpload("");
@@ -40,13 +38,11 @@ export const UploadHistoryPage: FunctionalComponent = () => {
     }
   };
 
-  // Libera o drop do navegador e destaca a area de upload enquanto o arquivo estiver sobre ela.
   const handleDragOver = (event: DragEvent) => {
     event.preventDefault();
     setArrastandoArquivo(true);
   };
 
-  // Remove o destaque quando o arquivo sai da area de upload sem soltar.
   const handleDragLeave = (event: DragEvent) => {
     const elementoAtual = event.currentTarget as HTMLElement | null;
     const proximoAlvo = event.relatedTarget as Node | null;
@@ -58,14 +54,12 @@ export const UploadHistoryPage: FunctionalComponent = () => {
     setArrastandoArquivo(false);
   };
 
-  // Recebe o arquivo arrastado para dentro da tela e reaproveita o fluxo normal de upload.
   const handleDrop = (event: DragEvent) => {
     event.preventDefault();
     setArrastandoArquivo(false);
     void enviarArquivoSelecionado(event.dataTransfer?.files?.[0] ?? null);
   };
 
-  // Abre o seletor nativo de arquivos sem depender do clique na area de arraste.
   const handleAbrirSeletorArquivo = () => {
     inputArquivoRef.current?.click();
   };
@@ -87,7 +81,7 @@ export const UploadHistoryPage: FunctionalComponent = () => {
               disabled={carregandoUpload}
               onClick={handleAbrirSeletorArquivo}
             >
-              {carregandoUpload ? "Enviando..." : "Upload do arquivo"}
+              {carregandoUpload ? "Enviando..." : "Selecione o arquivo"}
             </button>
 
             <label class="contracts-field">
@@ -114,7 +108,9 @@ export const UploadHistoryPage: FunctionalComponent = () => {
               id="arquivo-contratos"
               class="contracts-file-input-hidden"
               type="file"
-              onChange={(event) => void enviarArquivoSelecionado(event.currentTarget.files?.[0] ?? null)}
+              onChange={(event) => {
+                void enviarArquivoSelecionado(event.currentTarget.files?.[0] ?? null);
+              }}
             />
           </div>
 

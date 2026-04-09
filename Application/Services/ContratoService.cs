@@ -1,4 +1,4 @@
-﻿using Domain.Dtos;
+using Domain.Dtos;
 using Domain.Entities;
 using Domain.Interfaces;
 
@@ -15,45 +15,46 @@ public class ContratoService
         _repository = repository;
     }
 
-    public async Task ImportarContratosAsync(Stream arquivoStream, string exerc)
+    public async Task<int> ImportarContratosAsync(Stream arquivoStream)
     {
-        // 1. Orquestra a leitura (Transforma o binário em DTOs)
-        var dtos = await _leitor.LerArquivoAsync(arquivoStream, exerc);
+        // O leitor agora detecta o ano pela Referencia do proprio arquivo.
+        // Se precisar voltar ao modelo antigo, basta reintroduzir o parametro exerc aqui.
+        var dtos = await _leitor.LerArquivoAsync(arquivoStream);
 
-        // 2. Converte DTOs para Entidades de Domínio
-        var entidades = dtos.Select(dto => new Contrato 
+        var entidades = dtos.Select(dto => new Contrato
         {
             TipoDocumento = dto.TipoDocumento ?? "511",
             CodMunicipio = dto.CodMunicipio,
             CpfGestor = dto.CpfGestor,
             NumeroContrato = dto.NumeroContrato,
             DataAssinatura = dto.DataAssinatura,
-            TipoObjeto = dto.TipoObjeto,              // Novo
+            TipoObjeto = dto.TipoObjeto,
             Modalidade = dto.Modalidade,
-            CpfGestorOriginal = dto.CpfGestorOriginal, // Novo
-            NumeroContratoOrig = dto.NumeroContratoOrig,// Novo
-            DataContratoOrig = dto.DataContratoOrig,   // Novo
+            CpfGestorOriginal = dto.CpfGestorOriginal,
+            NumeroContratoOrig = dto.NumeroContratoOrig,
+            DataContratoOrig = dto.DataContratoOrig,
             VigenciaInicial = dto.VigenciaInicial,
             VigenciaFinal = dto.VigenciaFinal,
             Objeto = dto.Objeto,
             Valor = dto.Valor,
-            DataInicioObra = dto.DataInicioObra,       // Novo
-            TipoObraServico = dto.TipoObraServico,     // Novo
-            NumeroObra = dto.NumeroObra,               // Novo
-            DataTerminoObra = dto.DataTerminoObra,     // Novo
+            DataInicioObra = dto.DataInicioObra,
+            TipoObraServico = dto.TipoObraServico,
+            NumeroObra = dto.NumeroObra,
+            DataTerminoObra = dto.DataTerminoObra,
             Referencia = dto.Referencia,
-            DataAutuacao = dto.DataAutuacao,           // Novo
-            NumeroProcesso = dto.NumeroProcesso,       // Novo
+            DataAutuacao = dto.DataAutuacao,
+            NumeroProcesso = dto.NumeroProcesso,
             CpfFiscal = dto.CpfFiscal,
             NomeFiscal = dto.NomeFiscal,
-            IdContratoPncp = dto.IdContratoPncp        // Novo
+            IdContratoPncp = dto.IdContratoPncp
         }).ToList();
 
         if (entidades.Any())
         {
-            // 3. Orquestra a persistência no Banco de Dados
             await _repository.AdicionarVariosAsync(entidades);
         }
+
+        return entidades.Count;
     }
 
     public async Task<ContratoPagedResultDTO> BuscarPorNumeroContratoAsync(
@@ -61,35 +62,33 @@ public class ContratoService
         int page,
         int pageSize)
     {
-        // 1. Busca as entidades no banco via repositório já com paginação.
         var (notasEntidades, totalItems) = await _repository.BuscarPorContratoAsync(numeroContrato, page, pageSize);
 
-        // 2. Transforma as entidades da página atual no DTO da API.
         var items = notasEntidades.Select(n => new ContratoDTO(
-            TipoDocumento:      n.TipoDocumento,
-            CodMunicipio:       n.CodMunicipio,
-            CpfGestor:          n.CpfGestor,
-            NumeroContrato:     n.NumeroContrato,
-            DataAssinatura:     n.DataAssinatura,
-            TipoObjeto:         n.TipoObjeto,       // Novo
-            Modalidade:         n.Modalidade,
-            CpfGestorOriginal:  n.CpfGestorOriginal,// Novo
-            NumeroContratoOrig: n.NumeroContratoOrig,// Novo
-            DataContratoOrig:   n.DataContratoOrig, // Novo
-            VigenciaInicial:    n.VigenciaInicial,
-            VigenciaFinal:      n.VigenciaFinal,
-            Objeto:             n.Objeto,
-            Valor:              n.Valor,
-            DataInicioObra:     n.DataInicioObra,   // Novo
-            TipoObraServico:    n.TipoObraServico,  // Novo
-            NumeroObra:         n.NumeroObra,       // Novo
-            DataTerminoObra:    n.DataTerminoObra,  // Novo
-            Referencia:         n.Referencia,
-            DataAutuacao:       n.DataAutuacao,     // Novo
-            NumeroProcesso:     n.NumeroProcesso,   // Novo
-            CpfFiscal:          n.CpfFiscal,
-            NomeFiscal:         n.NomeFiscal,
-            IdContratoPncp:     n.IdContratoPncp    // Novo
+            TipoDocumento: n.TipoDocumento,
+            CodMunicipio: n.CodMunicipio,
+            CpfGestor: n.CpfGestor,
+            NumeroContrato: n.NumeroContrato,
+            DataAssinatura: n.DataAssinatura,
+            TipoObjeto: n.TipoObjeto,
+            Modalidade: n.Modalidade,
+            CpfGestorOriginal: n.CpfGestorOriginal,
+            NumeroContratoOrig: n.NumeroContratoOrig,
+            DataContratoOrig: n.DataContratoOrig,
+            VigenciaInicial: n.VigenciaInicial,
+            VigenciaFinal: n.VigenciaFinal,
+            Objeto: n.Objeto,
+            Valor: n.Valor,
+            DataInicioObra: n.DataInicioObra,
+            TipoObraServico: n.TipoObraServico,
+            NumeroObra: n.NumeroObra,
+            DataTerminoObra: n.DataTerminoObra,
+            Referencia: n.Referencia,
+            DataAutuacao: n.DataAutuacao,
+            NumeroProcesso: n.NumeroProcesso,
+            CpfFiscal: n.CpfFiscal,
+            NomeFiscal: n.NomeFiscal,
+            IdContratoPncp: n.IdContratoPncp
         )).ToList();
 
         var totalPages = totalItems == 0

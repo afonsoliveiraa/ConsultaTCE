@@ -3,9 +3,13 @@ import type { ContratoColumnDefinition, ContratoColumnId, ContratoFilters } from
 
 const dateColumns = new Set<ContratoColumnId>([
   "dataAssinatura",
+  "dataContratoOrig",
   "vigenciaInicial",
   "vigenciaFinal",
+  "dataInicioObra",
+  "dataTerminoObra",
   "referencia",
+  "dataAutuacao",
 ]);
 
 // Escapa valores para gerar um CSV valido mesmo com aspas, virgulas ou quebras de linha.
