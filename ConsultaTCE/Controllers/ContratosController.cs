@@ -16,18 +16,29 @@ public class ContratosController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload(IFormFile arquivo)
+    public async Task<IActionResult> Upload(IFormFile arquivo, string exerc)
     {
         if (arquivo == null || arquivo.Length == 0)
-            return BadRequest("Arquivo não enviado ou vazio.");
+            return BadRequest(new { mensagem = "Arquivo não enviado ou vazio." });
 
-        // Abrimos o stream do arquivo enviado pelo usuário
-        using var stream = arquivo.OpenReadStream();
+        try
+        {
+            // Abrimos o stream do arquivo enviado pelo usuário
+            using var stream = arquivo.OpenReadStream();
         
-        // Chamamos o serviço que orquestra todo o processo DDD
-        await _contratoService.ImportarContratosAsync(stream);
+            // Chamamos o serviço que orquestra todo o processo DDD
+            // Se o LeitorCO (dentro do service) lançar a Exception de segurança,
+            // ela subirá até este try-catch.
+            await _contratoService.ImportarContratosAsync(stream, exerc);
 
-        return Ok(new { mensagem = "Contratos processados e salvos com sucesso!" });
+            return Ok(new { mensagem = "Contratos processados e salvos com sucesso!" });
+        }
+        catch (Exception ex)
+        {
+            // Aqui capturamos a mensagem: "Bloqueio de segurança: O arquivo contém dados de..."
+            // Retornamos 400 (BadRequest) para que o front-end saiba que foi um erro de validação
+            return BadRequest(new { mensagem = ex.Message });
+        }
     }
     
     [HttpGet("buscar-por-contrato")] // Rota fixa, sem o {parametro}

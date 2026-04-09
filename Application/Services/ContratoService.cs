@@ -15,27 +15,38 @@ public class ContratoService
         _repository = repository;
     }
 
-    public async Task ImportarContratosAsync(Stream arquivoStream)
+    public async Task ImportarContratosAsync(Stream arquivoStream, string exerc)
     {
         // 1. Orquestra a leitura (Transforma o binário em DTOs)
-        var dtos = await _leitor.LerArquivoAsync(arquivoStream);
+        var dtos = await _leitor.LerArquivoAsync(arquivoStream, exerc);
 
         // 2. Converte DTOs para Entidades de Domínio
         var entidades = dtos.Select(dto => new Contrato 
         {
-            TipoDocumento = dto.TipoDocumento ?? "511", // Usa o do DTO ou o padrão 511
+            TipoDocumento = dto.TipoDocumento ?? "511",
             CodMunicipio = dto.CodMunicipio,
             CpfGestor = dto.CpfGestor,
             NumeroContrato = dto.NumeroContrato,
             DataAssinatura = dto.DataAssinatura,
+            TipoObjeto = dto.TipoObjeto,              // Novo
             Modalidade = dto.Modalidade,
+            CpfGestorOriginal = dto.CpfGestorOriginal, // Novo
+            NumeroContratoOrig = dto.NumeroContratoOrig,// Novo
+            DataContratoOrig = dto.DataContratoOrig,   // Novo
             VigenciaInicial = dto.VigenciaInicial,
             VigenciaFinal = dto.VigenciaFinal,
-            Referencia = dto.Referencia,
-            Valor = dto.Valor,
             Objeto = dto.Objeto,
+            Valor = dto.Valor,
+            DataInicioObra = dto.DataInicioObra,       // Novo
+            TipoObraServico = dto.TipoObraServico,     // Novo
+            NumeroObra = dto.NumeroObra,               // Novo
+            DataTerminoObra = dto.DataTerminoObra,     // Novo
+            Referencia = dto.Referencia,
+            DataAutuacao = dto.DataAutuacao,           // Novo
+            NumeroProcesso = dto.NumeroProcesso,       // Novo
             CpfFiscal = dto.CpfFiscal,
-            NomeFiscal = dto.NomeFiscal
+            NomeFiscal = dto.NomeFiscal,
+            IdContratoPncp = dto.IdContratoPncp        // Novo
         }).ToList();
 
         if (entidades.Any())
@@ -55,19 +66,30 @@ public class ContratoService
 
         // 2. Transforma as entidades da página atual no DTO da API.
         var items = notasEntidades.Select(n => new ContratoDTO(
-            TipoDocumento:  n.TipoDocumento,
-            CodMunicipio:   n.CodMunicipio,
-            CpfGestor:      n.CpfGestor,
-            NumeroContrato: n.NumeroContrato,
-            DataAssinatura: n.DataAssinatura,
-            Modalidade:     n.Modalidade,
-            VigenciaInicial: n.VigenciaInicial,
-            VigenciaFinal:   n.VigenciaFinal,
-            Referencia: n.Referencia,
-            Objeto:         n.Objeto,
-            Valor:          n.Valor,
-            CpfFiscal:      n.CpfFiscal,
-            NomeFiscal:     n.NomeFiscal
+            TipoDocumento:      n.TipoDocumento,
+            CodMunicipio:       n.CodMunicipio,
+            CpfGestor:          n.CpfGestor,
+            NumeroContrato:     n.NumeroContrato,
+            DataAssinatura:     n.DataAssinatura,
+            TipoObjeto:         n.TipoObjeto,       // Novo
+            Modalidade:         n.Modalidade,
+            CpfGestorOriginal:  n.CpfGestorOriginal,// Novo
+            NumeroContratoOrig: n.NumeroContratoOrig,// Novo
+            DataContratoOrig:   n.DataContratoOrig, // Novo
+            VigenciaInicial:    n.VigenciaInicial,
+            VigenciaFinal:      n.VigenciaFinal,
+            Objeto:             n.Objeto,
+            Valor:              n.Valor,
+            DataInicioObra:     n.DataInicioObra,   // Novo
+            TipoObraServico:    n.TipoObraServico,  // Novo
+            NumeroObra:         n.NumeroObra,       // Novo
+            DataTerminoObra:    n.DataTerminoObra,  // Novo
+            Referencia:         n.Referencia,
+            DataAutuacao:       n.DataAutuacao,     // Novo
+            NumeroProcesso:     n.NumeroProcesso,   // Novo
+            CpfFiscal:          n.CpfFiscal,
+            NomeFiscal:         n.NomeFiscal,
+            IdContratoPncp:     n.IdContratoPncp    // Novo
         )).ToList();
 
         var totalPages = totalItems == 0
