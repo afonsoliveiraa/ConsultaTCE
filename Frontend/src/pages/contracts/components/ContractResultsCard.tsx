@@ -129,7 +129,7 @@ export const ContractResultsCard: FunctionalComponent<ContractResultsCardProps> 
         </div>
 
         {contratos.length > 0 ? (
-          <div class="grid-demo__toolbar contracts-results__toolbar">
+          <div class="grid-demo__toolbar contracts-results__toolbar contracts-results__toolbar--pagination">
             <div class="grid-demo__toolbar-buttons">
               <button
                 class="grid-demo__text-button"

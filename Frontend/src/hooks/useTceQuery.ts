@@ -257,7 +257,7 @@ export function useTceQuery() {
         endpointKey: activeEndpoint.key,
         parameters: buildQueryParameters(),
         page,
-        pageSize: 25,
+        pageSize: 20,
       });
 
       setResult(queryResult);
@@ -283,6 +283,10 @@ export function useTceQuery() {
   const handlePageChange = async (nextPage: number) => {
     if (!result) {
       return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     await executeQuery(nextPage);

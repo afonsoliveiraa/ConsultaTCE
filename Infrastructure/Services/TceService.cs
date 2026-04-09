@@ -1,8 +1,10 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Domain.Entities;
 using Domain.Models;
 using Infrastructure.Http;
 using Infrastructure.Options;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -16,30 +18,33 @@ public class TceService
         new(["codigo_municipio", "quantidade", "deslocamento"], StringComparer.OrdinalIgnoreCase);
 
     private readonly TceHttpClient _httpClient;
+    private readonly IMemoryCache _memoryCache;
     private readonly ILogger<TceService> _logger;
-    private readonly IReadOnlyDictionary<string, Endpoint> _endpoints;
+    private readonly TceApiOptions _options;
 
     public TceService(
         TceHttpClient httpClient,
+        IMemoryCache memoryCache,
         IOptions<TceApiOptions> options,
         ILogger<TceService> logger)
     {
         _httpClient = httpClient;
+        _memoryCache = memoryCache;
         _logger = logger;
-        _endpoints = LoadEndpoints(options.Value);
+        _options = options.Value;
     }
 
     // Entrega a lista de endpoints que o front-end usa para preencher o seletor.
-    public Task<IReadOnlyList<Endpoint>> GetEndpointsAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Endpoint>> GetEndpointsAsync(CancellationToken cancellationToken)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult<IReadOnlyList<Endpoint>>(_endpoints.Values.ToArray());
+        var endpoints = await GetCatalogAsync(cancellationToken);
+        return endpoints.Values.ToArray();
     }
 
     // Consulta o endpoint de municipios para o usuario escolher o contexto da busca.
     public async Task<IReadOnlyList<MunicipalityOption>> GetMunicipalitiesAsync(CancellationToken cancellationToken)
     {
-        var endpoint = GetEndpoint("municipios");
+        var endpoint = await GetEndpointAsync("municipios", cancellationToken);
         var response = await _httpClient.GetAsync(endpoint.Path, new Dictionary<string, string>(), cancellationToken);
 
         var municipalities = response.Items
@@ -58,7 +63,7 @@ public class TceService
     // Executa a consulta dinamica montando a query string exigida pela API publica.
     public async Task<QueryResult> QueryAsync(QueryRequest request, CancellationToken cancellationToken)
     {
-        var endpoint = GetEndpoint(request.EndpointKey);
+        var endpoint = await GetEndpointAsync(request.EndpointKey, cancellationToken);
         var queryParameters = BuildQueryParameters(endpoint, request);
 
         var response = await _httpClient.GetAsync(endpoint.Path, queryParameters, cancellationToken);
@@ -93,76 +98,246 @@ public class TceService
         };
     }
 
-    // Carrega o catalogo primeiro do swagger do portal; se falhar, usa o fallback do appsettings.
-    private static IReadOnlyDictionary<string, Endpoint> LoadEndpoints(TceApiOptions options)
+    private async Task<IReadOnlyDictionary<string, Endpoint>> GetCatalogAsync(CancellationToken cancellationToken)
     {
-        var swaggerCatalog = TryLoadEndpointsFromSwagger(options);
+        var cacheKey = $"tce-catalog::{_options.BaseUrl.Trim().ToLowerInvariant()}";
+
+        var catalog = await _memoryCache.GetOrCreateAsync(
+            cacheKey,
+            async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(Math.Max(_options.CacheSeconds, 300));
+                return await LoadEndpointsAsync(cancellationToken);
+            });
+
+        return catalog ?? new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    // Carrega o catalogo primeiro das origens remotas do tribunal; se falhar, usa o fallback do appsettings.
+    private async Task<IReadOnlyDictionary<string, Endpoint>> LoadEndpointsAsync(CancellationToken cancellationToken)
+    {
+        var swaggerCatalog = await TryLoadEndpointsFromSwaggerAsync(cancellationToken);
         if (swaggerCatalog.Count > 0)
         {
+            _logger.LogInformation("Catalogo do TCE carregado dinamicamente com {Count} endpoints.", swaggerCatalog.Count);
             return swaggerCatalog;
         }
 
-        return options.Resources.ToDictionary(
+        _logger.LogWarning(
+            "Nao foi possivel carregar o catalogo dinamico do TCE. Usando fallback local com {Count} endpoints.",
+            _options.Resources.Count);
+
+        return _options.Resources.ToDictionary(
             entry => entry.Key,
             entry => MapConfiguredEndpoint(entry.Key, entry.Value),
             StringComparer.OrdinalIgnoreCase);
     }
 
-    // Le o arquivo que contem o swagger do portal para evitar manter um catalogo manual.
-    private static IReadOnlyDictionary<string, Endpoint> TryLoadEndpointsFromSwagger(TceApiOptions options)
+    // Tenta carregar o swagger a partir de JSONs remotos, scripts swagger-ui-init.js ou arquivo local.
+    private async Task<IReadOnlyDictionary<string, Endpoint>> TryLoadEndpointsFromSwaggerAsync(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(options.SwaggerUiInitPath) || !File.Exists(options.SwaggerUiInitPath))
+        var docsCatalog = await TryLoadEndpointsFromDocsAsync(cancellationToken);
+        if (docsCatalog.Count > 0)
+        {
+            return docsCatalog;
+        }
+
+        foreach (var swaggerDocumentUrl in GetSwaggerDocumentCandidates())
+        {
+            try
+            {
+                var content = await _httpClient.GetAbsoluteAsync(swaggerDocumentUrl, cancellationToken);
+                using var document = JsonDocument.Parse(content);
+                var endpoints = MapSwaggerDocument(document);
+                if (endpoints.Count > 0)
+                {
+                    _logger.LogInformation("Catalogo do TCE carregado a partir de {Source}.", swaggerDocumentUrl);
+                    return endpoints;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Falha ao carregar swagger JSON do TCE em {Source}.", swaggerDocumentUrl);
+            }
+        }
+
+        foreach (var swaggerUiInitUrl in GetSwaggerUiInitCandidates())
+        {
+            try
+            {
+                var content = await ReadSwaggerUiInitAsync(swaggerUiInitUrl, cancellationToken);
+                var swaggerJson = ExtractSwaggerJson(content);
+                using var document = JsonDocument.Parse(swaggerJson);
+                var endpoints = MapSwaggerDocument(document);
+                if (endpoints.Count > 0)
+                {
+                    _logger.LogInformation("Catalogo do TCE carregado a partir de {Source}.", swaggerUiInitUrl);
+                    return endpoints;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Falha ao carregar swagger-ui-init do TCE em {Source}.", swaggerUiInitUrl);
+            }
+        }
+
+        return new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    // Usa a pagina /docs/ como fonte primaria e segue o swagger-ui-init.js publicado pelo tribunal.
+    private async Task<IReadOnlyDictionary<string, Endpoint>> TryLoadEndpointsFromDocsAsync(CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(_options.DocsUrl))
         {
             return new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
         }
 
         try
         {
-            var content = File.ReadAllText(options.SwaggerUiInitPath);
+            var docsUrl = _options.DocsUrl.Trim();
+            var html = await _httpClient.GetAbsoluteAsync(docsUrl, cancellationToken);
+            var swaggerUiInitUrl = ExtractSwaggerUiInitUrl(docsUrl, html);
+            var content = await _httpClient.GetAbsoluteAsync(swaggerUiInitUrl, cancellationToken);
             var swaggerJson = ExtractSwaggerJson(content);
+
             using var document = JsonDocument.Parse(swaggerJson);
-
-            if (!document.RootElement.TryGetProperty("paths", out var pathsElement))
+            var endpoints = MapSwaggerDocument(document);
+            if (endpoints.Count > 0)
             {
-                return new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
-            }
-
-            var endpoints = new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var pathEntry in pathsElement.EnumerateObject())
-            {
-                if (!pathEntry.Value.TryGetProperty("get", out var getElement))
-                {
-                    continue;
-                }
-
-                var key = pathEntry.Name.Trim('/');
-                if (string.IsNullOrWhiteSpace(key))
-                {
-                    continue;
-                }
-
-                var fields = ReadFields(getElement).ToArray();
-
-                endpoints[key] = new Endpoint
-                {
-                    Key = key,
-                    Path = key,
-                    Category = ReadCategory(getElement),
-                    Description = getElement.TryGetProperty("summary", out var summaryElement)
-                        ? summaryElement.GetString() ?? $"Consulta do endpoint {key}"
-                        : $"Consulta do endpoint {key}",
-                    RequiredFields = fields.Where(field => field.Required).ToArray(),
-                    OptionalFields = fields.Where(field => !field.Required).ToArray()
-                };
+                _logger.LogInformation("Catalogo do TCE carregado a partir da documentacao oficial {DocsUrl}.", docsUrl);
             }
 
             return endpoints;
         }
-        catch
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Falha ao carregar catalogo do TCE a partir da documentacao oficial em {DocsUrl}.", _options.DocsUrl);
+            return new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
+    private async Task<Endpoint> GetEndpointAsync(string endpointKey, CancellationToken cancellationToken)
+    {
+        var endpoints = await GetCatalogAsync(cancellationToken);
+        if (endpoints.TryGetValue(endpointKey, out var endpoint))
+        {
+            return endpoint;
+        }
+
+        throw new ArgumentException($"O endpoint '{endpointKey}' nao esta configurado.");
+    }
+
+    private IEnumerable<string> GetSwaggerDocumentCandidates()
+    {
+        foreach (var url in _options.SwaggerDocumentUrls.Where(url => !string.IsNullOrWhiteSpace(url)))
+        {
+            yield return url.Trim();
+        }
+
+        var baseUrl = _options.BaseUrl.TrimEnd('/');
+        foreach (var candidate in new[]
+                 {
+                     $"{baseUrl}/swagger/v1/swagger.json",
+                     $"{baseUrl}/swagger.json",
+                     $"{baseUrl}/openapi.json"
+                 })
+        {
+            yield return candidate;
+        }
+    }
+
+    private IEnumerable<string> GetSwaggerUiInitCandidates()
+    {
+        foreach (var url in _options.SwaggerUiInitUrls.Where(url => !string.IsNullOrWhiteSpace(url)))
+        {
+            yield return url.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(_options.SwaggerUiInitPath))
+        {
+            yield return _options.SwaggerUiInitPath.Trim();
+        }
+
+        var baseUrl = _options.BaseUrl.TrimEnd('/');
+        foreach (var candidate in new[]
+                 {
+                     $"{baseUrl}/swagger-ui-init.js",
+                     $"{baseUrl}/swagger/swagger-ui-init.js"
+                 })
+        {
+            yield return candidate;
+        }
+    }
+
+    private async Task<string> ReadSwaggerUiInitAsync(string source, CancellationToken cancellationToken)
+    {
+        if (Uri.TryCreate(source, UriKind.Absolute, out _))
+        {
+            return await _httpClient.GetAbsoluteAsync(source, cancellationToken);
+        }
+
+        if (File.Exists(source))
+        {
+            return await File.ReadAllTextAsync(source, cancellationToken);
+        }
+
+        throw new FileNotFoundException("Arquivo swagger-ui-init nao encontrado.", source);
+    }
+
+    private static string ExtractSwaggerUiInitUrl(string docsUrl, string html)
+    {
+        var match = Regex.Match(
+            html,
+            "<script[^>]+src=[\"'](?<src>[^\"']*swagger-ui-init\\.js[^\"']*)[\"']",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        if (!match.Success)
+        {
+            throw new InvalidOperationException("Nao foi possivel localizar o swagger-ui-init.js na pagina de documentacao do tribunal.");
+        }
+
+        var scriptPath = match.Groups["src"].Value.Trim();
+        return new Uri(new Uri(docsUrl), scriptPath).ToString();
+    }
+
+    private static IReadOnlyDictionary<string, Endpoint> MapSwaggerDocument(JsonDocument document)
+    {
+        if (!document.RootElement.TryGetProperty("paths", out var pathsElement))
         {
             return new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
         }
+
+        var endpoints = new Dictionary<string, Endpoint>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var pathEntry in pathsElement.EnumerateObject())
+        {
+            if (!pathEntry.Value.TryGetProperty("get", out var getElement))
+            {
+                continue;
+            }
+
+            var key = pathEntry.Name.Trim('/');
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
+            var fields = ReadFields(getElement).ToArray();
+
+            endpoints[key] = new Endpoint
+            {
+                Key = key,
+                Path = key,
+                Category = ReadCategory(getElement),
+                Description = getElement.TryGetProperty("summary", out var summaryElement)
+                    ? summaryElement.GetString() ?? $"Consulta do endpoint {key}"
+                    : $"Consulta do endpoint {key}",
+                RequiredFields = fields.Where(field => field.Required).ToArray(),
+                OptionalFields = fields.Where(field => !field.Required).ToArray()
+            };
+        }
+
+        return endpoints;
     }
 
     // Extrai o documento swagger embutido dentro do script do portal.
@@ -432,17 +607,6 @@ public class TceService
     {
         return endpoint.RequiredFields.Any(field => string.Equals(field.Name, "quantidade", StringComparison.OrdinalIgnoreCase)) &&
                endpoint.RequiredFields.Any(field => string.Equals(field.Name, "deslocamento", StringComparison.OrdinalIgnoreCase));
-    }
-
-    // Recupera um endpoint existente ou falha com mensagem clara.
-    private Endpoint GetEndpoint(string endpointKey)
-    {
-        if (_endpoints.TryGetValue(endpointKey, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new ArgumentException($"O endpoint '{endpointKey}' nao esta configurado.");
     }
 
     // Gera um rotulo mais amigavel a partir do nome tecnico do campo.

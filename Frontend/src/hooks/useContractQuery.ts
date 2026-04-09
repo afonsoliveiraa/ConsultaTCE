@@ -11,7 +11,7 @@ import { buildContratosCsv, filterContratos } from "../pages/contracts/contractQ
 
 // Encapsula o estado e as regras da consulta de contratos.
 export function useContractQuery() {
-  const pageSize = 50;
+  const pageSize = 20;
   const [numeroContrato, setNumeroContrato] = useState("");
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [mensagemConsulta, setMensagemConsulta] = useState("");
@@ -124,6 +124,10 @@ export function useContractQuery() {
   const handlePageChange = async (page: number) => {
     if (page < 1 || page === currentPage || (totalPages > 0 && page > totalPages)) {
       return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     await carregarContratos(page);

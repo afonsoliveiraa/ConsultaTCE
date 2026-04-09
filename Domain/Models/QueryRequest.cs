@@ -20,7 +20,7 @@ public class QueryRequest
     public int Page { get; init; } = 1;
 
     // Quantidade de itens por pagina.
-    public int PageSize { get; init; } = 25;
+    public int PageSize { get; init; } = 20;
 
     // Normaliza a pagina para evitar numeros invalidos.
     public int NormalizedPage => Page < 1 ? 1 : Page;
@@ -28,7 +28,7 @@ public class QueryRequest
     // Normaliza o tamanho da pagina para impedir consultas excessivas.
     public int NormalizedPageSize => PageSize switch
     {
-        < 1 => 25,
+        < 1 => 20,
         > 100 => 100,
         _ => PageSize
     };

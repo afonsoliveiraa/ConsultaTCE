@@ -13,7 +13,7 @@ export async function uploadContratos(arquivo: File): Promise<string> {
 export async function buscarContratosPorNumero(
   numeroContrato: string,
   page = 1,
-  pageSize = 50,
+  pageSize = 20,
 ): Promise<ContratoPagedResult> {
   const response = await api.get("/Contratos/buscar-por-contrato", {
     params: { numeroContrato, page, pageSize },

@@ -34,14 +34,14 @@ public class ContratosController : ControllerBase
     public async Task<ActionResult<ContratoPagedResultDTO>> GetByContrato(
         [FromQuery] string? numeroContrato,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] int pageSize = 20)
     {
-        // A grade navega sempre em lotes de até 50 registros.
+        // A grade navega sempre em lotes de até 20 registros.
         var normalizedPage = page < 1 ? 1 : page;
         var normalizedPageSize = pageSize switch
         {
-            <= 0 => 50,
-            > 50 => 50,
+            <= 0 => 20,
+            > 20 => 20,
             _ => pageSize
         };
 

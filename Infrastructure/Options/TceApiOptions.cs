@@ -25,6 +25,14 @@ public class TceApiOptions
     // Caminho do arquivo que contem o swagger embutido do portal.
     public string SwaggerUiInitPath { get; init; } = @"C:\Users\joaov\API-TCE-CE\swagger-ui-init.js";
 
+    // URL da pagina oficial de documentacao usada para descobrir o swagger publicado pelo tribunal.
+    public string DocsUrl { get; init; } = "https://api-dados-abertos.tce.ce.gov.br/docs/";
+
+    // URLs opcionais para descoberta remota do catalogo publicada pelo tribunal.
+    public string[] SwaggerDocumentUrls { get; init; } = [];
+
+    public string[] SwaggerUiInitUrls { get; init; } = [];
+
     // Fallback de endpoints caso a leitura do swagger nao esteja disponivel.
     public Dictionary<string, TceEndpointOption> Resources { get; init; } =
         new(StringComparer.OrdinalIgnoreCase);

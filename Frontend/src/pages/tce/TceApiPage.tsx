@@ -104,15 +104,15 @@ export const TceApiPage: FunctionalComponent = () => {
         <div class="contracts-steps" aria-label="Etapas">
           <div class="contracts-step">
             <span aria-hidden="true">&#10003;</span>
-            <strong>Municipio</strong>
+            <strong>{selectedMunicipality?.name ?? "Municipio"}</strong>
           </div>
           <div class="contracts-step">
             <span aria-hidden="true">&#10003;</span>
-            <strong>Assunto</strong>
+            <strong>{activeEndpoint?.category ?? "Assunto"}</strong>
           </div>
           <div class="contracts-step">
             <span aria-hidden="true">&#10003;</span>
-            <strong>Consulta</strong>
+            <strong>{result ? `${result.pagination.totalItems} registros` : "Consulta"}</strong>
           </div>
         </div>
       </div>
@@ -154,7 +154,7 @@ export const TceApiPage: FunctionalComponent = () => {
                 >
                   {endpoints.map((endpoint) => (
                     <option key={endpoint.key} value={endpoint.key}>
-                      {formatEndpointName(endpoint)} | {endpoint.category}
+                      {formatEndpointName(endpoint)}
                     </option>
                   ))}
                 </select>
@@ -293,7 +293,7 @@ export const TceApiPage: FunctionalComponent = () => {
         </div>
 
         {result ? (
-          <div class="grid-demo__toolbar contracts-results__toolbar">
+          <div class="grid-demo__toolbar contracts-results__toolbar contracts-results__toolbar--pagination">
             <div class="grid-demo__toolbar-buttons">
               <button
                 class="grid-demo__text-button"

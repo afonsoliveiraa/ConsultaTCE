@@ -15,6 +15,7 @@ export const ContractQueryPage: FunctionalComponent = () => {
     erroConsulta,
     carregandoConsulta,
     currentPage,
+    pageSize,
     totalItems,
     totalPages,
     showColumnModal,
@@ -36,7 +37,7 @@ export const ContractQueryPage: FunctionalComponent = () => {
 
   return (
     <>
-      <ContractsTopbar />
+      <ContractsTopbar currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} />
       <ContractFiltersCard
         numeroContrato={numeroContrato}
         mensagemConsulta={mensagemConsulta}

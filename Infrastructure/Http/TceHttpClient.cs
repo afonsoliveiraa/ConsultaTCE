@@ -82,6 +82,36 @@ public class TceHttpClient
         return materializedResponse;
     }
 
+    // Baixa um documento bruto a partir de uma URL absoluta preservando headers opcionais.
+    public async Task<string> GetAbsoluteAsync(string absoluteUrl, CancellationToken cancellationToken)
+    {
+        var cacheKey = $"tce-http-raw::{absoluteUrl}";
+        if (_memoryCache.TryGetValue(cacheKey, out string? cachedDocument) && !string.IsNullOrWhiteSpace(cachedDocument))
+        {
+            return cachedDocument;
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, absoluteUrl);
+
+        if (!string.IsNullOrWhiteSpace(_options.ApiKeyHeaderName) &&
+            !string.IsNullOrWhiteSpace(_options.ApiKey))
+        {
+            request.Headers.TryAddWithoutValidation(_options.ApiKeyHeaderName, _options.ApiKey);
+        }
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Falha ao consultar '{absoluteUrl}' no TCE-CE. Status: {(int)response.StatusCode}. Resposta: {body}");
+        }
+
+        _memoryCache.Set(cacheKey, body, TimeSpan.FromSeconds(_options.CacheSeconds));
+        return body;
+    }
+
     // Monta a URL final preservando o formato que a API publica espera.
     private string BuildSourceUrl(string path, IReadOnlyDictionary<string, string> queryParameters)
     {
