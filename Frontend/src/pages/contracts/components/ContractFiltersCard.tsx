@@ -37,7 +37,7 @@ export const ContractFiltersCard: FunctionalComponent<ContractFiltersCardProps> 
               type="text"
               value={numeroContrato}
               onInput={(event) => onNumeroContratoChange(event.currentTarget.value)}
-              placeholder="Digite o numero do contrato"
+              placeholder="Deixe em branco para trazer todos os contratos"
             />
           </div>
         </label>
@@ -59,5 +59,10 @@ export const ContractFiltersCard: FunctionalComponent<ContractFiltersCardProps> 
     {erroConsulta ? (
       <p class="contracts-feedback contracts-feedback--error">{erroConsulta}</p>
     ) : null}
+
+    <p class="contracts-feedback contracts-feedback--neutral">
+      Deixe o campo em branco para carregar todos os contratos. Use "Busque em qualquer campo"
+      para refinar a grade abaixo.
+    </p>
   </article>
 );

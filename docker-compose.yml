@@ -1,0 +1,63 @@
+services:
+  # Banco principal da aplicacao.
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-consulta_tce}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-consulta_tce}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  # Job temporario que prepara o schema antes da API subir.
+  db-migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_APP_SECRET: ${FRONTEND_SECRET:-ChaveLocal123!}
+    environment:
+      CONSULTATCE_CONNECTION_STRING: Host=db;Port=5432;Database=${POSTGRES_DB:-consulta_tce};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  # Aplicacao principal servindo API e frontend publicado.
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_APP_SECRET: ${FRONTEND_SECRET:-ChaveLocal123!}
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-consulta_tce};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      Frontend__AllowedOrigins__0: ${APP_PUBLIC_ORIGIN:-http://localhost:7113}
+      Security__FrontendKey: ${FRONTEND_SECRET:-ChaveLocal123!}
+    depends_on:
+      db:
+        condition: service_healthy
+      db-migrator:
+        condition: service_completed_successfully
+    ports:
+      - "${APP_PORT:-7113}:8080"
+    restart: unless-stopped
+
+volumes:
+  # Volume persistente do PostgreSQL.
+  postgres-data:

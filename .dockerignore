@@ -1,0 +1,15 @@
+.git
+.idea
+.config
+.codex-tmp
+**/bin
+**/obj
+Frontend/node_modules
+Frontend/dist
+Frontend/.vite
+Frontend/.env
+publish-test
+*.log
+*.err.log
+*.stdout.log
+*.stderr.log

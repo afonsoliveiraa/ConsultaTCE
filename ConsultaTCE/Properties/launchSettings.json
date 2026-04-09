@@ -7,7 +7,9 @@
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7113",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CONSULTATCE_HTTPS_CERT_PATH": "C:\\Users\\joaov\\ConsultaTCE\\ConsultaTCE\\https-dev-cert.pfx",
+        "CONSULTATCE_HTTPS_CERT_PASSWORD": "ConsultaTCE.Dev.2026"
       }
     }
   }

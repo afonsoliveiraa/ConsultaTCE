@@ -2,7 +2,7 @@ import { type ComponentChildren, type FunctionalComponent } from "preact";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { PageTitleProvider, usePageTitleSafe } from "./PageTitleContext";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 interface MainLayoutProps {
   children: ComponentChildren;
@@ -11,7 +11,14 @@ interface MainLayoutProps {
 
 const MainLayoutFrame: FunctionalComponent<{ children: ComponentChildren }> = ({ children }) => {
   const pageTitle = usePageTitleSafe();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    const savedValue = window.localStorage.getItem("consultaTce.sidebarOpen");
+    return savedValue === "true";
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem("consultaTce.sidebarOpen", String(sidebarOpen));
+  }, [sidebarOpen]);
 
   return (
     <div class="app-frame">

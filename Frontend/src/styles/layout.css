@@ -157,6 +157,10 @@
   width: 100%;
 }
 
+.sidebar-branch {
+  position: relative;
+}
+
 .sidebar-link__caret {
   margin-left: auto;
   width: 18px;
@@ -179,6 +183,26 @@
   display: grid;
   gap: 4px;
   padding: 4px 0 0 18px;
+}
+
+.sidebar-submenu--floating {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+  z-index: 30;
+}
+
+.sidebar-submenu--floating .sidebar-link--child {
+  min-height: 40px;
+  padding-left: 12px;
+  border-left: 0;
+  border-radius: 6px;
 }
 
 .sidebar-link--child {

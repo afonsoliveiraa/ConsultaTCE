@@ -1,13 +1,13 @@
-﻿import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-    baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
 });
 
 api.interceptors.request.use((config) => {
-    // Aqui você injeta a chave UMA ÚNICA VEZ para todas as rotas do app
-    config.headers['X-App-Secret'] = import.meta.env.VITE_APP_SECRET;
-    return config;
+  // Centraliza o envio da chave do front-end em todas as requisicoes.
+  config.headers["X-App-Secret"] = import.meta.env.VITE_APP_SECRET;
+  return config;
 });
 
 export default api;

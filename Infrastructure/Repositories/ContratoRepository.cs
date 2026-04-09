@@ -23,11 +23,26 @@ public class ContratoRepository : IContratoRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Contrato>> BuscarPorContratoAsync(string numeroContrato)
+    public async Task<(IReadOnlyList<Contrato> Contratos, int TotalItems)> BuscarPorContratoAsync(
+        string? numeroContrato,
+        int page,
+        int pageSize)
     {
-        // O .Where retorna todos os registros que satisfazem a condição
-        return await _context.Contratos
-            .Where(n => n.NumeroContrato == numeroContrato)
+        var query = _context.Contratos.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(numeroContrato))
+        {
+            query = query.Where(n => n.NumeroContrato == numeroContrato);
+        }
+
+        var totalItems = await query.CountAsync();
+
+        var contratos = await query
+            .OrderBy(n => n.NumeroContrato)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+
+        return (contratos, totalItems);
     }
 }

@@ -45,13 +45,16 @@ public class ContratoService
         }
     }
 
-    public async Task<IEnumerable<ContratoDTO>> BuscarPorNumeroContratoAsync(string numeroContrato)
+    public async Task<ContratoPagedResultDTO> BuscarPorNumeroContratoAsync(
+        string? numeroContrato,
+        int page,
+        int pageSize)
     {
-        // 1. Busca as entidades no banco via repositório
-        var notasEntidades = await _repository.BuscarPorContratoAsync(numeroContrato);
+        // 1. Busca as entidades no banco via repositório já com paginação.
+        var (notasEntidades, totalItems) = await _repository.BuscarPorContratoAsync(numeroContrato, page, pageSize);
 
-        // 2. Transforma as entidades de volta para o seu DTO existente
-        return notasEntidades.Select(n => new ContratoDTO(
+        // 2. Transforma as entidades da página atual no DTO da API.
+        var items = notasEntidades.Select(n => new ContratoDTO(
             TipoDocumento:  n.TipoDocumento,
             CodMunicipio:   n.CodMunicipio,
             CpfGestor:      n.CpfGestor,
@@ -66,5 +69,11 @@ public class ContratoService
             CpfFiscal:      n.CpfFiscal,
             NomeFiscal:     n.NomeFiscal
         )).ToList();
+
+        var totalPages = totalItems == 0
+            ? 0
+            : (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        return new ContratoPagedResultDTO(items, page, pageSize, totalItems, totalPages);
     }
 }

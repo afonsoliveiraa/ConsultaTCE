@@ -1,10 +1,50 @@
 import type { Contrato } from "../../types/contrato";
 import type { ContratoColumnDefinition, ContratoColumnId, ContratoFilters } from "./contractQuery.types";
 
+const dateColumns = new Set<ContratoColumnId>([
+  "dataAssinatura",
+  "vigenciaInicial",
+  "vigenciaFinal",
+  "referencia",
+]);
+
 // Escapa valores para gerar um CSV valido mesmo com aspas, virgulas ou quebras de linha.
 function escapeCsvValue(value: string) {
   const normalizedValue = value.replace(/"/g, "\"\"");
   return `"${normalizedValue}"`;
+}
+
+function normalizeContratoValue(value: string | number | null) {
+  return value == null ? "" : String(value);
+}
+
+function formatBrazilianDate(value: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  const isoDateMatch = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (isoDateMatch) {
+    const [, year, month, day] = isoDateMatch;
+    return `${day}/${month}/${year}`;
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("pt-BR").format(parsedDate);
+}
+
+export function formatContratoValue(contrato: Contrato, field: ContratoColumnId) {
+  const value = contrato[field];
+
+  if (dateColumns.has(field)) {
+    return formatBrazilianDate(value as string | null);
+  }
+
+  return normalizeContratoValue(value);
 }
 
 // Aplica a busca rapida e os filtros locais sobre a lista retornada pela API.
@@ -18,8 +58,8 @@ export function filterContratos(
   return contratos.filter((contrato) => {
     const matchesQuickSearch =
       quickSearchTerm.length === 0 ||
-      Object.values(contrato).some((value) =>
-        String(value).toLowerCase().includes(quickSearchTerm),
+      (Object.keys(contrato) as ContratoColumnId[]).some((field) =>
+        formatContratoValue(contrato, field).toLowerCase().includes(quickSearchTerm),
       );
 
     if (!matchesQuickSearch) {
@@ -33,7 +73,7 @@ export function filterContratos(
         return true;
       }
 
-      return String(contrato[field]).toLowerCase().includes(filterTerm);
+      return formatContratoValue(contrato, field).toLowerCase().includes(filterTerm);
     });
   });
 }
@@ -46,7 +86,7 @@ export function buildContratosCsv(
   const header = visibleColumns.map((column) => escapeCsvValue(column.label)).join(";");
   const rows = contratos.map((contrato) =>
     visibleColumns
-      .map((column) => escapeCsvValue(String(contrato[column.id] ?? "")))
+      .map((column) => escapeCsvValue(formatContratoValue(contrato, column.id)))
       .join(";"),
   );
 

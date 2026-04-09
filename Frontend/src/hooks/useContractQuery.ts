@@ -11,11 +11,15 @@ import { buildContratosCsv, filterContratos } from "../pages/contracts/contractQ
 
 // Encapsula o estado e as regras da consulta de contratos.
 export function useContractQuery() {
+  const pageSize = 50;
   const [numeroContrato, setNumeroContrato] = useState("");
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [mensagemConsulta, setMensagemConsulta] = useState("");
   const [erroConsulta, setErroConsulta] = useState("");
   const [carregandoConsulta, setCarregandoConsulta] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [showColumnModal, setShowColumnModal] = useState(false);
   const [columns, setColumns] = useState<ContratoColumnDefinition[]>(contratoColumns);
   const [draggingColumnId, setDraggingColumnId] = useState<ContratoColumnId | null>(null);
@@ -29,7 +33,7 @@ export function useContractQuery() {
     [columns],
   );
 
-  // Aplica busca rapida e filtros locais sobre a lista devolvida pela API.
+  // Aplica busca rapida e filtros locais sobre a pagina devolvida pela API.
   const filteredContratos = useMemo(
     () => filterContratos(contratos, filters, quickSearch),
     [contratos, filters, quickSearch],
@@ -75,35 +79,54 @@ export function useContractQuery() {
     setDropTargetColumnId(null);
   };
 
-  // Executa a consulta por numero do contrato e atualiza a grade de resultados.
-  const handleBuscarContrato = async (event: Event) => {
-    event.preventDefault();
+  // Centraliza a consulta paginada para manter grid, mensagem e totalizadores alinhados.
+  const carregarContratos = async (page: number) => {
     setMensagemConsulta("");
     setErroConsulta("");
     setContratos([]);
-
-    const numeroNormalizado = numeroContrato.trim();
-
-    if (!numeroNormalizado) {
-      setErroConsulta("Informe o numero do contrato para consultar.");
-      return;
-    }
-
+    setCurrentPage(page);
     setCarregandoConsulta(true);
 
     try {
-      const resultado = await buscarContratosPorNumero(numeroNormalizado);
-      setContratos(resultado);
+      const numeroNormalizado = numeroContrato.trim();
+      const resultado = await buscarContratosPorNumero(numeroNormalizado, page, pageSize);
+
+      setContratos(resultado.items);
+      setCurrentPage(resultado.page);
+      setTotalItems(resultado.totalItems);
+      setTotalPages(resultado.totalPages);
       setMensagemConsulta(
-        resultado.length === 1
-          ? "1 contrato encontrado."
-          : `${resultado.length} contratos encontrados.`,
+        numeroNormalizado.length === 0
+          ? resultado.totalItems === 1
+            ? "1 contrato carregado."
+            : `${resultado.totalItems} contratos carregados.`
+          : resultado.totalItems === 1
+            ? "1 contrato encontrado."
+            : `${resultado.totalItems} contratos encontrados.`,
       );
     } catch (error) {
+      setCurrentPage(1);
+      setTotalItems(0);
+      setTotalPages(0);
       setErroConsulta(error instanceof Error ? error.message : "Falha ao consultar o contrato.");
     } finally {
       setCarregandoConsulta(false);
     }
+  };
+
+  // Executa a pesquisa sempre iniciando pela primeira pagina.
+  const handleBuscarContrato = async (event: Event) => {
+    event.preventDefault();
+    await carregarContratos(1);
+  };
+
+  // Navega entre paginas sem perder o criterio atual digitado pelo usuario.
+  const handlePageChange = async (page: number) => {
+    if (page < 1 || page === currentPage || (totalPages > 0 && page > totalPages)) {
+      return;
+    }
+
+    await carregarContratos(page);
   };
 
   // Exporta a grade filtrada para CSV usando as colunas visiveis na ordem atual.
@@ -132,6 +155,10 @@ export function useContractQuery() {
     mensagemConsulta,
     erroConsulta,
     carregandoConsulta,
+    currentPage,
+    pageSize,
+    totalItems,
+    totalPages,
     showColumnModal,
     columns,
     visibleColumns,
@@ -147,6 +174,7 @@ export function useContractQuery() {
     setColumnVisibility,
     handleColumnDrop,
     handleBuscarContrato,
+    handlePageChange,
     handleExportCsv,
   };
 }

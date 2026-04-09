@@ -1,5 +1,5 @@
 import { type FunctionalComponent } from "preact";
-import { useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import { Icon, type IconName } from "./Icon";
 
 interface SidebarChildItem {
@@ -15,7 +15,8 @@ interface SidebarItem {
   children?: SidebarChildItem[];
 }
 
-const acquisitionContractsLabel = "Processos";
+const processLabel = "Processos";
+const consultationLabel = "Consultas";
 
 const menuGroups: { title: string; items: SidebarItem[] }[] = [
   {
@@ -24,15 +25,17 @@ const menuGroups: { title: string; items: SidebarItem[] }[] = [
       { label: "Inicio", href: "/", icon: "home" },
       { label: "Upload de historico", href: "/upload-de-historico", icon: "upload" },
       {
-        label: acquisitionContractsLabel,
+        label: processLabel,
         icon: "file",
-        children: [
-          { label: "Consulta do contrato", href: "/consulta-de-contrato", icon: "search" },
-        ],
+        children: [{ label: "Consulta do contrato", href: "/consulta-de-contrato", icon: "search" }],
+      },
+      {
+        label: consultationLabel,
+        icon: "search",
+        children: [{ label: "API TCE", href: "/api-tce", icon: "search" }],
       },
       { label: "Unidades Funcionais", href: "#", icon: "bank" },
       { label: "Documentos", href: "#", icon: "file" },
-      { label: "Consultas", href: "#", icon: "search" },
       { label: "Relatorios", href: "#", icon: "chart" },
       { label: "Usuarios", href: "#", icon: "user" },
     ],
@@ -41,21 +44,83 @@ const menuGroups: { title: string; items: SidebarItem[] }[] = [
 
 export const Sidebar: FunctionalComponent<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => {
   const currentPath = window.location.pathname;
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Mantem o submenu de aquisicoes aberto na rota filha ou apos interacao do usuario.
-  const defaultExpanded = currentPath === "/consulta-de-contrato";
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    [acquisitionContractsLabel]: defaultExpanded,
+  const defaultExpanded = currentPath === "/consulta-de-contrato" || currentPath === "/api-tce";
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    const savedValue = window.localStorage.getItem("consultaTce.sidebarGroups");
+
+    if (savedValue) {
+      try {
+        return JSON.parse(savedValue) as Record<string, boolean>;
+      } catch {
+        // Cai para o estado padrao caso o localStorage esteja invalido.
+      }
+    }
+
+    return {
+      [processLabel]: currentPath === "/consulta-de-contrato",
+      [consultationLabel]: defaultExpanded,
+    };
   });
 
-  const groups = useMemo(() => menuGroups, []);
+  const groups = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return menuGroups;
+    }
+
+    return menuGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.flatMap((item) => {
+          const itemMatches = item.label.toLowerCase().includes(normalizedSearch);
+
+          if (!item.children?.length) {
+            return itemMatches ? [item] : [];
+          }
+
+          const matchingChildren = item.children.filter((child) =>
+            child.label.toLowerCase().includes(normalizedSearch),
+          );
+
+          if (itemMatches || matchingChildren.length > 0) {
+            return [
+              {
+                ...item,
+                children: itemMatches ? item.children : matchingChildren,
+              },
+            ];
+          }
+
+          return [];
+        }),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [searchTerm]);
 
   const toggleGroup = (label: string) => {
-    setOpenGroups((current) => ({
-      ...current,
-      [label]: !current[label],
-    }));
+    setOpenGroups((current) => {
+      if (!open) {
+        return {
+          [processLabel]: false,
+          [consultationLabel]: false,
+          [label]: !current[label],
+        };
+      }
+
+      return {
+        ...current,
+        [label]: !current[label],
+      };
+    });
   };
+
+  useEffect(() => {
+    window.localStorage.setItem("consultaTce.sidebarGroups", JSON.stringify(openGroups));
+  }, [openGroups]);
 
   return (
     <aside class={`app-sidebar${open ? "" : " app-sidebar--collapsed"}`}>
@@ -72,7 +137,7 @@ export const Sidebar: FunctionalComponent<{ open: boolean; onToggle: () => void 
         {open ? (
           <label class="app-sidebar__search">
             <span>Buscar no menu...</span>
-            <input value="" />
+            <input value={searchTerm} onInput={(event) => setSearchTerm(event.currentTarget.value)} />
           </label>
         ) : null}
       </div>
@@ -113,8 +178,8 @@ export const Sidebar: FunctionalComponent<{ open: boolean; onToggle: () => void 
                       ) : null}
                     </button>
 
-                    {open && groupOpen ? (
-                      <div class="sidebar-submenu">
+                    {groupOpen ? (
+                      <div class={`sidebar-submenu${open ? "" : " sidebar-submenu--floating"}`}>
                         {item.children?.map((child) => (
                           <a
                             key={child.label}

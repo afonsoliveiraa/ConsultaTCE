@@ -31,16 +31,31 @@ public class ContratosController : ControllerBase
     }
     
     [HttpGet("buscar-por-contrato")] // Rota fixa, sem o {parametro}
-    public async Task<ActionResult<IEnumerable<ContratoDTO>>> GetByContrato([FromQuery] string numeroContrato)
+    public async Task<ActionResult<ContratoPagedResultDTO>> GetByContrato(
+        [FromQuery] string? numeroContrato,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50)
     {
+        // A grade navega sempre em lotes de até 50 registros.
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedPageSize = pageSize switch
+        {
+            <= 0 => 50,
+            > 50 => 50,
+            _ => pageSize
+        };
 
-        if (string.IsNullOrEmpty(numeroContrato))
-            return BadRequest("O número do contrato deve ser informado.");
+        var resultado = await _contratoService.BuscarPorNumeroContratoAsync(
+            numeroContrato,
+            normalizedPage,
+            normalizedPageSize);
 
-        var resultado = await _contratoService.BuscarPorNumeroContratoAsync(numeroContrato);
-
-        if (!resultado.Any())
-            return NotFound($"Nenhum contrato encontrada para seguinte número: {numeroContrato}");
+        if (resultado.TotalItems == 0)
+        {
+            return string.IsNullOrWhiteSpace(numeroContrato)
+                ? NotFound("Nenhum contrato encontrado na base.")
+                : NotFound($"Nenhum contrato encontrada para seguinte número: {numeroContrato}");
+        }
 
         return Ok(resultado);
     }

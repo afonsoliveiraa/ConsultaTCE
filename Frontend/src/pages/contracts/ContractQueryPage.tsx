@@ -14,6 +14,9 @@ export const ContractQueryPage: FunctionalComponent = () => {
     mensagemConsulta,
     erroConsulta,
     carregandoConsulta,
+    currentPage,
+    totalItems,
+    totalPages,
     showColumnModal,
     columns,
     visibleColumns,
@@ -27,6 +30,7 @@ export const ContractQueryPage: FunctionalComponent = () => {
     setColumnVisibility,
     handleColumnDrop,
     handleBuscarContrato,
+    handlePageChange,
     handleExportCsv,
   } = useContractQuery();
 
@@ -44,11 +48,16 @@ export const ContractQueryPage: FunctionalComponent = () => {
       <ContractResultsCard
         contratos={contratos}
         filteredContratos={filteredContratos}
+        carregandoConsulta={carregandoConsulta}
         quickSearch={quickSearch}
+        currentPage={currentPage}
+        totalItems={totalItems}
+        totalPages={totalPages}
         visibleColumns={visibleColumns}
         dropTargetColumnId={dropTargetColumnId}
         onQuickSearchChange={setQuickSearch}
         onShowColumnModal={setShowColumnModal}
+        onPageChange={handlePageChange}
         onDragStart={setDraggingColumnId}
         onDragOver={(event, columnId) => {
           event.preventDefault();
