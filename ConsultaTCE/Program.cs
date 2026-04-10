@@ -24,6 +24,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Registra as implementações da infraestrutura local e da integração externa do TCE.
 builder.Services.AddScoped<ILeitorCO, LeitorCO>();
 builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
+
+builder.Services.AddScoped<ILeitorLI, LeitorLI>();
+builder.Services.AddScoped<ILicitacaoRepository, LicitacaoRepository>();
+
 builder.Services.AddScoped<TceService>();
 builder.Services.AddScoped<ITceService, TceServiceAdapter>();
 builder.Services.AddMemoryCache();
@@ -38,12 +42,19 @@ builder.Services.AddHttpClient<TceHttpClient>(client =>
 
 // Registra os serviços de aplicação que orquestram os casos de uso.
 builder.Services.AddScoped<ContratoService>();
+builder.Services.AddScoped<LicitacaoService>();
+
 builder.Services.AddScoped<TceAppService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });    
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "ConsultaTCE API",

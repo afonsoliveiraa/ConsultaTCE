@@ -16,7 +16,7 @@ public class ContratosController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromForm] IFormFile arquivo)
+    public async Task<IActionResult> Upload(IFormFile arquivo)
     {
         if (arquivo == null || arquivo.Length == 0)
             return BadRequest(new { mensagem = "Arquivo não enviado ou vazio." });

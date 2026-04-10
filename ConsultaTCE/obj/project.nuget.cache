@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4waaouI2r3Y=",
+  "dgSpecHash": "nBCat/KXJOg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Profissional\\Desktop\\ConsultaTCE\\ConsultaTCE\\ConsultaTCE.csproj",
+  "projectFilePath": "C:\\Users\\Profissional\\Desktop\\TESTE\\ConsultaTCE\\ConsultaTCE\\ConsultaTCE.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Profissional\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Profissional\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",

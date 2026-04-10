@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
 
     // Registra a Entidade 
     public DbSet<Contrato> Contratos { get; set; }
+    public DbSet<Licitacao> Licitacoes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
